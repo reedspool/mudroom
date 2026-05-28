@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/hexops/autogold/v2"
 	"github.com/stretchr/testify/assert"
 )
@@ -14,7 +13,7 @@ import (
 // Only one router setup and requested over and over again so it won't work
 // if there's any state
 func Test_statelessRouter_staticRequests(t *testing.T) {
-	router := setupRouter()
+	router := newHandler()
 
 	var cases = []struct {
 		name, url, response string
@@ -40,7 +39,7 @@ func Test_statelessRouter_staticRequests(t *testing.T) {
 }
 
 func Test_statelessRouter_staticRequests_autogold(t *testing.T) {
-	router := setupRouter()
+	router := newHandler()
 
 	var cases = []struct {
 		name, url string
@@ -63,8 +62,16 @@ func Test_statelessRouter_staticRequests_autogold(t *testing.T) {
 			test.response.Equal(t, w.Body.String())
 		})
 	}
+
+	t.Run("test file", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "/testfile", nil)
+		w := testRequest(t, router, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		autogold.ExpectFile(t, w.Body.String())
+	})
 }
-func testRequest(t testing.TB, router *gin.Engine, req *http.Request) *httptest.ResponseRecorder {
+func testRequest(t testing.TB, router http.Handler, req *http.Request) *httptest.ResponseRecorder {
 	t.Helper()
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)

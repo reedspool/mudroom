@@ -1,5 +1,7 @@
 # HTML Wiki Two
 
+[github.com/reedspool/html-wiki-two](https://github.com/reedspool/html-wiki-two)
+
 Experimental web server in golang.
 
 ## Tasks
@@ -41,6 +43,6 @@ fswatch --one-per-batch --recursive --latency 0.1 --event Updated . | xargs -I{}
 Tell [`autogold`](https://github.com/hexops/autogold) to update all "golden" values/files in tests. Also removes any tests which are no longer used. The `git diff` is there to suggest a workflow concept.
 
 ```sh
-go test -update -clean
+go test -clean -update 
 git diff **/*_test.go
 ```

@@ -2,10 +2,7 @@ module github.com/reedspool/html-wiki-two
 
 go 1.26.3
 
-require (
-	github.com/gin-gonic/gin v1.12.0
-	github.com/stretchr/testify v1.11.1
-)
+require github.com/stretchr/testify v1.11.1
 
 require (
 	github.com/bytedance/gopkg v0.1.3 // indirect
