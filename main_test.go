@@ -13,13 +13,12 @@ import (
 // Only one router setup and requested over and over again so it won't work
 // if there's any state
 func Test_statelessRouter_staticRequests(t *testing.T) {
-	router := newHandler()
+	router := NewHandler()
 
 	var cases = []struct {
 		name, url, response string
 		status              int
 	}{
-		{name: "ping (deprecated)", url: "/ping", status: http.StatusOK, response: "pong"},
 		{name: "404 Not Found", url: "/definitelynotaurl", status: http.StatusNotFound, response: "404 Not found"},
 		// TODO: This format isn't correct. Want this response to depend on content negotation
 		{name: "Reflect with only reflect", url: "/definitelynotaurl?reflect", status: http.StatusOK, response: "map[reflect:[]]"},
@@ -39,14 +38,13 @@ func Test_statelessRouter_staticRequests(t *testing.T) {
 }
 
 func Test_statelessRouter_staticRequests_autogold(t *testing.T) {
-	router := newHandler()
+	router := NewHandler()
 
 	var cases = []struct {
 		name, url string
 		response  autogold.Value
 		status    int
 	}{
-		{name: "ping (deprecated)", url: "/ping", status: http.StatusOK, response: autogold.Expect("pong")},
 		{name: "404 Not Found", url: "/definitelynotaurl", status: http.StatusNotFound, response: autogold.Expect("404 Not found")},
 		// TODO: This format isn't correct. Want this response to depend on content negotation
 		{name: "Reflect with only reflect", url: "/definitelynotaurl?reflect", status: http.StatusOK, response: autogold.Expect("map[reflect:[]]")},
@@ -64,7 +62,7 @@ func Test_statelessRouter_staticRequests_autogold(t *testing.T) {
 	}
 
 	t.Run("test file", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "/testfile", nil)
+		req, _ := http.NewRequest(http.MethodGet, "user1/base/index.html", nil)
 		w := testRequest(t, router, req)
 
 		assert.Equal(t, http.StatusOK, w.Code)
