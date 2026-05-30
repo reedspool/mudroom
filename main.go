@@ -5,24 +5,53 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
-const (
-	testFixtureFSRoot string = "test/fixtures/layers"
-)
+type layer struct {
+	user, name, actualFilePathRoot string
+}
 
-type server struct{}
+type EmptyConfig struct{}
 
-func NewHandler() *server {
-	return &server{}
+func (EmptyConfig) Layer(name string) (lyr layer, found bool) { return }
+
+type NoAuthConfig struct {
+	user   string
+	layers []layer
+}
+
+func (c NoAuthConfig) Layer(name string) (lyr layer, found bool) {
+	for _, lyr = range c.layers {
+		if lyr.name == name {
+			return lyr, true
+		}
+	}
+	return
+}
+
+type Config interface {
+	Layer(name string) (lyr layer, found bool)
+}
+
+type server struct {
+	config Config
+}
+
+func NewHandler(config Config) *server {
+	return &server{config}
 }
 
 type fileContents []byte
 
-func readFile(path string) (contents fileContents, err error) {
+func (s server) readFile(path string) (contents fileContents, err error) {
 	relativeFilePath := strings.TrimPrefix(path, "/")
-	fullPath := fmt.Sprintf("%s/%s", testFixtureFSRoot, relativeFilePath)
+	lyr, found := s.config.Layer("base")
+	if !found {
+		return nil, fmt.Errorf("Can't find layer: %s", "base")
+	}
+	fullPath := filepath.Join(lyr.actualFilePathRoot, relativeFilePath)
 
 	if _, err := os.Stat(fullPath); err != nil {
 		if !os.IsNotExist(err) {
@@ -33,14 +62,14 @@ func readFile(path string) (contents fileContents, err error) {
 	return os.ReadFile(fullPath)
 }
 
-func (server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (s server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	hasReflect := r.URL.Query().Has("reflect")
 
 	if hasReflect && r.Method == "GET" {
 		w.WriteHeader(200)
 		w.Write(fmt.Appendf([]byte{}, "%+v", r.URL.Query()))
 	} else if r.Method == "GET" {
-		fileContents, err := readFile(r.URL.Path)
+		fileContents, err := s.readFile(r.URL.Path)
 		if err != nil {
 			w.WriteHeader(404)
 			w.Write([]byte("404 Not found"))
@@ -58,5 +87,5 @@ func (server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	log.Fatal(http.ListenAndServe(":8080", NewHandler()))
+	log.Fatal(http.ListenAndServe(":8080", NewHandler(EmptyConfig{})))
 }
