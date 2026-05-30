@@ -19,7 +19,7 @@ func Test_wiki_emptyConfig(t *testing.T) {
 	}{
 		{name: "404 Not Found", url: "/definitelynotaurl", status: http.StatusNotFound, response: autogold.Expect("404 Not found")},
 		{name: "Reflect with only reflect", url: "/definitelynotaurl?reflect", status: http.StatusOK, response: autogold.Expect("map[reflect:[]]")},
-		{name: "Reflect with other arbitrary queryparams", url: "/definitelynotaurl?reflect&meow", status: http.StatusOK, response: autogold.Expect("map[meow:[] reflect:[]]")},
+		{name: "Reflect with other arbitrary queryparams", url: "/definitelynotaurl?reflect&meow&layer=any/specifier", status: http.StatusOK, response: autogold.Expect("map[layer:[any/specifier] meow:[] reflect:[]]")},
 	}
 
 	for index, test := range cases {
@@ -39,7 +39,7 @@ func Test_wiki_emptyConfig(t *testing.T) {
 func Test_wiki_user1_literal(t *testing.T) {
 	router := Wiki(user1NoAuthConfig())
 
-	// user1BaseIndexHtml := mustReadFile(t, "user1/base/index.html")
+	user1BaseIndexHtml := mustReadFile(t, "user1/base/index.html")
 	user1BaseUnshadowedHtml := mustReadFile(t, "user1/base/unshadowed.html")
 	user1SecondIndexHtml := mustReadFile(t, "user1/second/index.html")
 
@@ -49,8 +49,10 @@ func Test_wiki_user1_literal(t *testing.T) {
 		status    int
 	}{
 		{name: "literal shadowed html", url: "/index.html", status: http.StatusOK, expected: user1SecondIndexHtml},
+		{name: "literal shadowed html by specifier", url: "/index.html?layer=user1/base", status: http.StatusOK, expected: user1BaseIndexHtml},
 		{name: "literal shadowed html with no leading slash", url: "index.html", status: http.StatusOK, expected: user1SecondIndexHtml},
 		{name: "literal unshadowed html", url: "unshadowed.html", status: http.StatusOK, expected: user1BaseUnshadowedHtml},
+		{name: "literal unshadowed html by specifier is empty", url: "unshadowed.html?layer=user1/second", status: http.StatusNotFound, expected: "404 Not found"},
 	}
 
 	for index, test := range cases {

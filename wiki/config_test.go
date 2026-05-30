@@ -18,8 +18,14 @@ func Test_emptyConfig(t *testing.T) {
 
 	t.Run("Empty config .GetFile always errors", func(t *testing.T) {
 		contents, err := config.GetFile("any/path")
-		assert.Equal(t, fileContents(nil), contents)
+		assert.Equal(t, "", string(contents))
 		autogold.Expect("Cannot get file any/path in empty config").Equal(t, err.Error())
+	})
+
+	t.Run("Empty config .GetFile always errors, even with layer specifier", func(t *testing.T) {
+		contents, err := config.GetFileFrom("any/path", "arbitrary/layer")
+		assert.Equal(t, "", string(contents))
+		autogold.Expect("Cannot get file any/path (from arbitrary/layer) in empty config").Equal(t, err.Error())
 	})
 }
 
@@ -44,7 +50,7 @@ func Test_user1(t *testing.T) {
 		assert.Equal(t, true, found)
 	})
 
-	// user1BaseIndexHtml := mustReadFile(t, "user1/base/index.html")
+	user1BaseIndexHtml := mustReadFile(t, "user1/base/index.html")
 	user1BaseUnshadowedHtml := mustReadFile(t, "user1/base/unshadowed.html")
 	user1SecondIndexHtml := mustReadFile(t, "user1/second/index.html")
 
@@ -54,9 +60,21 @@ func Test_user1(t *testing.T) {
 		assert.Equal(t, nil, err)
 	})
 
+	t.Run("User1's config GetFile index.html can specify first layer", func(t *testing.T) {
+		contents, err := config.GetFileFrom("index.html", "user1/base")
+		assert.Equal(t, user1BaseIndexHtml, string(contents))
+		assert.Equal(t, nil, err)
+	})
+
 	t.Run("User1's config GetFile unshadowed.html is indeed unshadowed", func(t *testing.T) {
 		contents, err := config.GetFile("unshadowed.html")
 		assert.Equal(t, user1BaseUnshadowedHtml, string(contents))
 		assert.Equal(t, nil, err)
+	})
+
+	t.Run("User1's config GetFile unshadowed.html is non-existant in second layer", func(t *testing.T) {
+		contents, err := config.GetFileFrom("unshadowed.html", "user1/second")
+		assert.Equal(t, "", string(contents))
+		autogold.Expect("No file at path unshadowed.html in layer user1/second").Equal(t, err.Error()) // Does err
 	})
 }

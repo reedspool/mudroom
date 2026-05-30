@@ -22,7 +22,17 @@ func (s wiki) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		w.Write(fmt.Appendf([]byte{}, "%+v", r.URL.Query()))
 	} else if r.Method == "GET" {
-		fileContents, err := s.config.GetFile(r.URL.Path)
+
+		hasLayerSpecifier := r.URL.Query().Has("layer")
+		var (
+			fileContents fileContents
+			err          error
+		)
+		if hasLayerSpecifier {
+			fileContents, err = s.config.GetFileFrom(r.URL.Path, r.URL.Query().Get("layer"))
+		} else {
+			fileContents, err = s.config.GetFile(r.URL.Path)
+		}
 		if err != nil {
 			w.WriteHeader(404)
 			w.Write([]byte("404 Not found"))
