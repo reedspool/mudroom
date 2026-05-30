@@ -1,4 +1,4 @@
-package main
+package wiki
 
 import (
 	"fmt"
@@ -13,22 +13,22 @@ import (
 )
 
 const (
-	fixtureFSRoot string = "test/fixtures/layers"
+	fixtureFSRoot string = "testdata/fixtures/layers"
 )
 
 func user1NoAuthConfig() Config {
 	user := "user1"
 	name := "base"
-	baseLayer := layer{
+	baseLayer := Layer{
 		user:               user,
 		name:               name,
 		actualFilePathRoot: path.Join(fixtureFSRoot, user, name),
 	}
-	return NoAuthConfig{user, []layer{baseLayer}}
+	return NoAuthConfig{user, []Layer{baseLayer}}
 }
 
 func Test_emptyConfig(t *testing.T) {
-	router := NewHandler(EmptyConfig{})
+	router := Wiki(EmptyConfig{})
 
 	var cases = []struct {
 		name, url string
@@ -52,7 +52,7 @@ func Test_emptyConfig(t *testing.T) {
 }
 
 func Test_statelessRouter_staticRequests_files(t *testing.T) {
-	router := NewHandler(user1NoAuthConfig())
+	router := Wiki(user1NoAuthConfig())
 
 	user1BaseIndexHtml, err := os.ReadFile(path.Join(fixtureFSRoot, "user1/base/index.html"))
 	if err != nil {
@@ -80,7 +80,7 @@ func Test_statelessRouter_staticRequests_files(t *testing.T) {
 }
 
 func Test_statelessRouter_staticRequests_autogoldFiles(t *testing.T) {
-	router := NewHandler(user1NoAuthConfig())
+	router := Wiki(user1NoAuthConfig())
 	var cases = []struct {
 		name, url string
 		status    int

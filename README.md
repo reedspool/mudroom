@@ -17,7 +17,7 @@ go run main.go
 ### Test
 
 ```sh
-go test
+go test ./...
 ```
 
 ### clear-test
@@ -26,7 +26,7 @@ Clear the terminal then run `go test`
 
 ```sh
 clear
-go test
+go test ./...
 ```
 
 ### test-watch
@@ -43,6 +43,6 @@ fswatch --one-per-batch --recursive --latency 0.1 --event Updated . | xargs -I{}
 Tell [`autogold`](https://github.com/hexops/autogold) to update all "golden" values/files in tests. Also removes any tests which are no longer used. The `git diff` is there to suggest a workflow concept.
 
 ```sh
-go test -clean -update 
+go test ./... -clean -update 
 git diff **/*_test.go
 ```
