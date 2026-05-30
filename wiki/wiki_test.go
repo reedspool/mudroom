@@ -3,31 +3,13 @@ package wiki
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
-	"os"
-	"path"
 	"testing"
 
 	"github.com/hexops/autogold/v2"
 	"github.com/stretchr/testify/assert"
 )
 
-const (
-	fixtureFSRoot string = "testdata/fixtures/layers"
-)
-
-func user1NoAuthConfig() Config {
-	user := "user1"
-	name := "base"
-	baseLayer := Layer{
-		user:               user,
-		name:               name,
-		actualFilePathRoot: path.Join(fixtureFSRoot, user, name),
-	}
-	return NoAuthConfig{user, []Layer{baseLayer}}
-}
-
-func Test_emptyConfig(t *testing.T) {
+func Test_wiki_emptyConfig(t *testing.T) {
 	router := Wiki(EmptyConfig{})
 
 	var cases = []struct {
@@ -51,21 +33,24 @@ func Test_emptyConfig(t *testing.T) {
 	}
 }
 
-func Test_statelessRouter_staticRequests_files(t *testing.T) {
+// Literal means "no templating occurred" either because there is no templating
+// functionality, or because the raw file was requested. This means the expected
+// value should be the exact file as it is on disk.
+func Test_wiki_user1_literal(t *testing.T) {
 	router := Wiki(user1NoAuthConfig())
 
-	user1BaseIndexHtml, err := os.ReadFile(path.Join(fixtureFSRoot, "user1/base/index.html"))
-	if err != nil {
-		t.Fatal(err)
-	}
+	// user1BaseIndexHtml := mustReadFile(t, "user1/base/index.html")
+	user1BaseUnshadowedHtml := mustReadFile(t, "user1/base/unshadowed.html")
+	user1SecondIndexHtml := mustReadFile(t, "user1/second/index.html")
 
 	var cases = []struct {
 		name, url string
-		expected  []byte
+		expected  string
 		status    int
 	}{
-		{name: "literal html file (no templating)", url: "/index.html", status: http.StatusOK, expected: user1BaseIndexHtml},
-		{name: "literal html file (no templating, no leading slash)", url: "index.html", status: http.StatusOK, expected: user1BaseIndexHtml},
+		{name: "literal shadowed html", url: "/index.html", status: http.StatusOK, expected: user1SecondIndexHtml},
+		{name: "literal shadowed html with no leading slash", url: "index.html", status: http.StatusOK, expected: user1SecondIndexHtml},
+		{name: "literal unshadowed html", url: "unshadowed.html", status: http.StatusOK, expected: user1BaseUnshadowedHtml},
 	}
 
 	for index, test := range cases {
@@ -74,35 +59,10 @@ func Test_statelessRouter_staticRequests_files(t *testing.T) {
 			w := testRequest(t, router, req)
 
 			assert.Equal(t, test.status, w.Code)
-			assert.Equal(t, string(test.expected), w.Body.String())
-		})
-	}
-}
-
-func Test_statelessRouter_staticRequests_autogoldFiles(t *testing.T) {
-	router := Wiki(user1NoAuthConfig())
-	var cases = []struct {
-		name, url string
-		status    int
-	}{
-		{name: "literal html file (no templating)", url: "/index.html", status: http.StatusOK},
-		{name: "literal html file (no templating, no leading slash)", url: "index.html", status: http.StatusOK},
-	}
-
-	for index, test := range cases {
-		t.Run(fmt.Sprintf("%q (case #%d)", test.name, index+1), func(t *testing.T) {
-			req, _ := http.NewRequest(http.MethodGet, test.url, nil)
-			w := testRequest(t, router, req)
-
-			assert.Equal(t, test.status, w.Code)
+			assert.Equal(t, test.expected, w.Body.String())
+			// In the case of literal files, this is redundant with the above, but
+			// when we add templating this will be more useful as no original file exists.
 			autogold.ExpectFile(t, w.Body.String())
 		})
 	}
-}
-
-func testRequest(t testing.TB, router http.Handler, req *http.Request) *httptest.ResponseRecorder {
-	t.Helper()
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-	return w
 }
