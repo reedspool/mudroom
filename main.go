@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
 )
 
 const (
-	fixtureFSRoot string = "test/fixtures/layers"
+	testFixtureFSRoot string = "test/fixtures/layers"
 )
 
 type server struct{}
@@ -20,8 +21,8 @@ func NewHandler() *server {
 type fileContents []byte
 
 func readFile(path string) (contents fileContents, err error) {
-	withoutLeadingSlash := strings.TrimPrefix(path, "/")
-	fullPath := fmt.Sprintf("%s/%s", fixtureFSRoot, withoutLeadingSlash)
+	relativeFilePath := strings.TrimPrefix(path, "/")
+	fullPath := fmt.Sprintf("%s/%s", testFixtureFSRoot, relativeFilePath)
 
 	if _, err := os.Stat(fullPath); err != nil {
 		if !os.IsNotExist(err) {
@@ -56,15 +57,6 @@ func (server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func NewServer() *http.Server {
-	srv := http.Server{
-		Handler: NewHandler(),
-		Addr:    ":8080",
-	}
-	return &srv
-}
-
 func main() {
-	r := NewServer()
-	r.ListenAndServe()
+	log.Fatal(http.ListenAndServe(":8080", NewHandler()))
 }
