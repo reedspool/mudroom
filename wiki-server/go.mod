@@ -1,4 +1,4 @@
-module github.com/reedspool/html-wiki-two
+module github.com/reedspool/html-wiki-two/wiki-server
 
 go 1.26.3
 

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/reedspool/html-wiki-two/wiki"
+	"github.com/reedspool/html-wiki-two/wiki-server/wiki"
 	"log"
 	"net/http"
 )
