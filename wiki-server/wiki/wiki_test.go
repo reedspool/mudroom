@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/alecthomas/assert/v2"
 	"github.com/hexops/autogold/v2"
-	"github.com/stretchr/testify/assert"
 )
 
 func Test_wiki_emptyConfig(t *testing.T) {
@@ -18,8 +18,8 @@ func Test_wiki_emptyConfig(t *testing.T) {
 		status    int
 	}{
 		{name: "404 Not Found", url: "/definitelynotaurl", status: http.StatusNotFound, response: autogold.Expect("404 Not found")},
-		{name: "Reflect with only reflect", url: "/definitelynotaurl?reflect", status: http.StatusOK, response: autogold.Expect("map[reflect:[]]")},
-		{name: "Reflect with other arbitrary queryparams", url: "/definitelynotaurl?reflect&meow&layer=any/specifier", status: http.StatusOK, response: autogold.Expect("map[layer:[any/specifier] meow:[] reflect:[]]")},
+		{name: "Reflect with only reflect", url: "/definitelynotaurl?reflect", status: http.StatusOK, response: autogold.Expect("map[reflect:]")},
+		{name: "Reflect with other arbitrary queryparams", url: "/definitelynotaurl?reflect&meow&layer=any/specifier", status: http.StatusOK, response: autogold.Expect("map[layer:any/specifier meow: reflect:]")},
 	}
 
 	for index, test := range cases {

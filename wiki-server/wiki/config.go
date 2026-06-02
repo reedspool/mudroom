@@ -12,19 +12,26 @@ type Layer struct {
 	user, name, actualFilePathRoot string
 }
 
+type Config interface {
+	Layer(name string) (lyr Layer, found bool)
+	GetFile(relativePath string) (contents fileContents, err error)
+	GetFileFrom(relativePath string, layerSpecifier string) (contents fileContents, err error)
+}
+
 type EmptyConfig struct{}
 
+type NoAuthConfig struct {
+	user   string
+	layers []Layer
+}
+
+// Empty config has no layers, no files
 func (EmptyConfig) Layer(name string) (lyr Layer, found bool) { return }
 func (EmptyConfig) GetFile(relativePath string) (contents fileContents, err error) {
 	return nil, fmt.Errorf("Cannot get file %s in empty config", relativePath)
 }
 func (EmptyConfig) GetFileFrom(relativePath string, layerSpecifier string) (contents fileContents, err error) {
 	return nil, fmt.Errorf("Cannot get file %s (from %s) in empty config", relativePath, layerSpecifier)
-}
-
-type NoAuthConfig struct {
-	user   string
-	layers []Layer
 }
 
 func (c NoAuthConfig) Layer(name string) (lyr Layer, found bool) {
@@ -34,12 +41,6 @@ func (c NoAuthConfig) Layer(name string) (lyr Layer, found bool) {
 		}
 	}
 	return
-}
-
-type Config interface {
-	Layer(name string) (lyr Layer, found bool)
-	GetFile(relativePath string) (contents fileContents, err error)
-	GetFileFrom(relativePath string, layerSpecifier string) (contents fileContents, err error)
 }
 
 func (c NoAuthConfig) readFile(path string) (contents fileContents, err error) {

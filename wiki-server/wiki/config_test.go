@@ -3,8 +3,8 @@ package wiki
 import (
 	"testing"
 
+	"github.com/alecthomas/assert/v2"
 	"github.com/hexops/autogold/v2"
-	"github.com/stretchr/testify/assert"
 )
 
 func Test_emptyConfig(t *testing.T) {
