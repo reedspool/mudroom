@@ -11,7 +11,7 @@ Experimental web server in golang.
 ### Run
 
 ```sh
-go run main.go
+go run cmd/httpserver/main.go
 ```
 
 ### Test
@@ -26,7 +26,7 @@ Clear the terminal then run `go test`
 
 ```sh
 clear
-go test ./...
+go test wiki/*.go
 ```
 
 ### test-watch
@@ -45,4 +45,11 @@ Tell [`autogold`](https://github.com/hexops/autogold) to update all "golden" val
 ```sh
 go test ./... -clean -update 
 git diff **/*_test.go
+```
+
+### docker-build-and-run
+
+```sh
+docker build -t html-wiki-two -f cmd/httpserver/Dockerfile .
+docker run -p 8080:8080 html-wiki-two:latest
 ```
