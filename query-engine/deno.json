@@ -1,0 +1,18 @@
+{
+  "tasks": {
+    "serve": "deno run -P main.ts",
+    "test": "deno test --watch"
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1",
+    "node-html-parser": "npm:node-html-parser@^7.1.0"
+  },
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "dom.asynciterable", "deno.ns"]
+  },
+  "permissions": {
+    "default": {
+      "net": ["0.0.0.0:8000"]
+    }
+  }
+}
