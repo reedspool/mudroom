@@ -29,3 +29,23 @@ deno task serve
 docker build -t wiki-query-engine .
 docker run -p 8000:8000 wiki-query-engine
 ```
+
+### test
+
+```sh
+deno task test
+```
+
+### test-watch
+
+```sh
+deno task test:watch
+```
+
+### inspect-test
+
+Start a step debugger. Deno runs each test file separately which causes a separate debugger server to start. So pick one test file to debug by changing the parameter below.
+
+```sh
+deno test --inspect-brk ./main_test.ts
+```

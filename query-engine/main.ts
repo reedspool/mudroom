@@ -1,6 +1,11 @@
-export function handler(req: Request): Response {
+export async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
-  fetch("https://www.google.com").then(a=>a.text()).then(console.log)
+
+  if (url.searchParams.has("fetchMe")) {
+    const fetchResponse = await fetch(url.searchParams.get("fetchMe")!);
+    const fetchResponoseText = await fetchResponse.text();
+    console.log(fetchResponoseText);
+  }
   if (url.pathname === "/api") {
     return Response.json({
       message: "Hello, world!",

@@ -1,4 +1,5 @@
 import { assertEquals } from "jsr:@std/assert";
+import { assertSpyCalls, spy } from "jsr:@std/testing/mock";
 import { template, Inputs } from "./template.ts";
 
 Deno.test("Simple HTML has no effect", () => {
@@ -27,7 +28,22 @@ Deno.test("x-content", () => {
   const input = '<span x-content="5+2" />';
   const expected = "<span>7</span>";
   const inputs = new Inputs();
+  const querySpy = spy((_) => 7);
   inputs.Set("rootSelector", "span");
-  const result = template(input, inputs);
+  const result = template(input, inputs, querySpy);
+  assertSpyCalls(querySpy, 1);
+  assertEquals(querySpy.calls[0].args, ["5+2"]);
+  assertEquals(result, expected);
+});
+
+Deno.test("<r- content=...>", () => {
+  const input = '<r- content="5+2" />';
+  const expected = "7";
+  const inputs = new Inputs();
+  const querySpy = spy((_) => 7);
+  inputs.Set("rootSelector", "r-");
+  const result = template(input, inputs, querySpy);
+  assertSpyCalls(querySpy, 1);
+  assertEquals(querySpy.calls[0].args, ["5+2"]);
   assertEquals(result, expected);
 });
