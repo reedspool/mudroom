@@ -32,37 +32,62 @@ Deno.test("templating", async (t) => {
       expectedQueryCallArgs: [],
     },
     {
+      name: "Root selector with query",
+      input: '<a href="https://example.com"><span x-content="5+2">F</span></a>',
+      expected: "<span>7</span>",
+      inputs: { rootSelector: "span" },
+      expectedQueryCallArgs: ["5+2"],
+    },
+    {
+      name: "Root selector with nested query",
+      input:
+        '<a href="https://example.com"><span><r- content="5+2" /></span></a>',
+      expected: "<span>7</span>",
+      inputs: { rootSelector: "span" },
+      expectedQueryCallArgs: ["5+2"],
+    },
+    {
       name: "x-content",
       input: '<span x-content="5+2" />',
       expected: "<span>7</span>",
-      inputs: { rootSelector: "span" },
+      inputs: {},
       expectedQueryCallArgs: ["5+2"],
     },
     {
       name: "nested x-content",
       input: '<span><span x-content="5+2" /></span>',
       expected: "<span><span>7</span></span>",
-      inputs: { rootSelector: "span" },
+      inputs: {},
       expectedQueryCallArgs: ["5+2"],
     },
     {
       name: "<r- content=...>",
       input: '<r- content="5+2" />',
       expected: "7",
-      inputs: { rootSelector: "r-" },
+      inputs: {},
+      expectedQueryCallArgs: ["5+2"],
+    },
+    {
+      name: "Nested <r- content=...>",
+      input: '<span><r- content="5+2" /></span>',
+      expected: "<span>7</span>",
+      inputs: {},
       expectedQueryCallArgs: ["5+2"],
     },
     {
       name: "<set- foo=...>",
       input: '<span><set- foo="5+2" /><r- content="foo" /></span>',
       expected: "<span>7</span>",
-      inputs: { rootSelector: "span" },
+      inputs: {},
       expectedQueryCallArgs: ["5+2", "foo"],
     },
   ];
   for (const { name, input, expected, inputs, expectedQueryCallArgs } of a) {
     await t.step(name, async () => {
       const context = new Inputs();
+
+      // See the note for why query must be async in its definition
+      // deno-lint-ignore require-await
       const querySpy = spy(async (_) => 7);
       for (const [key, value] of Object.entries(inputs)) {
         context.Set(key, value);

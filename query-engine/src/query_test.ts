@@ -1,4 +1,4 @@
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals, assertRejects } from "jsr:@std/assert";
 import { Inputs } from "./template.ts";
 import { query } from "./query.ts";
 
@@ -56,4 +56,10 @@ Deno.test("querying", async (t) => {
       assertEquals(result, expected);
     });
   }
+});
+
+Deno.test("query errors", async () => {
+  await assertRejects(() => query("5+", new Inputs()));
+  await assertRejects(() => query("'", new Inputs()));
+  await assertRejects(() => query("<span>F</span>", new Inputs()));
 });

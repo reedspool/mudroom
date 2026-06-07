@@ -14,7 +14,14 @@ export type QueryInterface = (
 // does in Node console.
 const AsyncFunction = async function () {}.constructor;
 
-export const query: QueryInterface = (expression, inputs) => {
+// NOTE: Want this to be async so that all errors reject the returned promise
+//       instead of throwing an exception, so that callers can handle issues
+//       in one way
+// deno-lint-ignore require-await
+export const query: QueryInterface = async (
+  expression,
+  inputs,
+): Promise<unknown> => {
   // If this ecmaVersion becomes an issue, try https://github.com/acornjs/acorn/tree/master/acorn-loose/
   const parsed = acorn.parseExpressionAt(expression, 0, {
     ecmaVersion: "latest",
@@ -43,5 +50,6 @@ export const query: QueryInterface = (expression, inputs) => {
   Object.defineProperty(fn, "name", {
     value: "pString anonymous function",
   });
+
   return fn(...values);
 };
