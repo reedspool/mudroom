@@ -1,6 +1,6 @@
 import { assertEquals } from "jsr:@std/assert";
 import { template, Inputs } from "./template.ts";
-import { spy } from "@std/testing/mock";
+import { createQuerySpy } from "./test-utilities.ts";
 
 Deno.test("templating", async (t) => {
   const a: Array<{
@@ -74,21 +74,12 @@ Deno.test("templating", async (t) => {
       inputs: {},
       expectedQueryCallArgs: ["5+2"],
     },
-    {
-      name: "<set- foo=...>",
-      input: '<span><set- foo="5+2" /><r- content="foo" /></span>',
-      expected: "<span>7</span>",
-      inputs: {},
-      expectedQueryCallArgs: ["5+2", "foo"],
-    },
   ];
   for (const { name, input, expected, inputs, expectedQueryCallArgs } of a) {
     await t.step(name, async () => {
       const context = new Inputs();
 
-      // See the note for why query must be async in its definition
-      // deno-lint-ignore require-await
-      const querySpy = spy(async (_) => 7);
+      const querySpy = createQuerySpy();
       for (const [key, value] of Object.entries(inputs)) {
         context.Set(key, value);
       }

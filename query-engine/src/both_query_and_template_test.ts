@@ -27,6 +27,12 @@ Deno.test("querying", async (t) => {
       expected: "<span>8</span>",
       inputs: {},
     },
+    {
+      name: "<set- foo=...>",
+      input: '<span><set- foo="5+2" /><r- content="foo" /></span>',
+      expected: "<span>7</span>",
+      inputs: {},
+    },
   ];
   for (const { name, input, expected, inputs } of a) {
     await t.step(name, async () => {

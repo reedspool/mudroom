@@ -42,6 +42,7 @@ function asHTMLElementOrNull(a: Node | null): HTMLElement | null {
   return a;
 }
 
+export type TemplateInterface = typeof template;
 export async function template(
   html: string,
   inputs: InputsInterface,
