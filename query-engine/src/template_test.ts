@@ -1,6 +1,6 @@
 import { assertEquals } from "jsr:@std/assert";
-import { assertSpyCalls, spy } from "jsr:@std/testing/mock";
 import { template, Inputs } from "./template.ts";
+import { spy } from "@std/testing/mock";
 
 Deno.test("templating", async (t) => {
   const a: Array<{
@@ -8,7 +8,7 @@ Deno.test("templating", async (t) => {
     input: string;
     expected: string;
     inputs: Record<string, string>;
-    expectedQueryCallArgs: Array<[string]>;
+    expectedQueryCallArgs: Array<string>;
   }> = [
     {
       name: "Simple HTML has no effect",
@@ -36,42 +36,45 @@ Deno.test("templating", async (t) => {
       input: '<span x-content="5+2" />',
       expected: "<span>7</span>",
       inputs: { rootSelector: "span" },
-      expectedQueryCallArgs: [["5+2"]],
+      expectedQueryCallArgs: ["5+2"],
     },
     {
       name: "nested x-content",
       input: '<span><span x-content="5+2" /></span>',
       expected: "<span><span>7</span></span>",
       inputs: { rootSelector: "span" },
-      expectedQueryCallArgs: [["5+2"]],
+      expectedQueryCallArgs: ["5+2"],
     },
     {
       name: "<r- content=...>",
       input: '<r- content="5+2" />',
       expected: "7",
       inputs: { rootSelector: "r-" },
-      expectedQueryCallArgs: [["5+2"]],
+      expectedQueryCallArgs: ["5+2"],
     },
     {
       name: "<set- foo=...>",
       input: '<span><set- foo="5+2" /><r- content="foo" /></span>',
       expected: "<span>7</span>",
       inputs: { rootSelector: "span" },
-      expectedQueryCallArgs: [["5+2"], ["foo"]],
+      expectedQueryCallArgs: ["5+2", "foo"],
     },
   ];
   for (const { name, input, expected, inputs, expectedQueryCallArgs } of a) {
-    await t.step(name, () => {
+    await t.step(name, async () => {
       const context = new Inputs();
-      const querySpy = spy((_) => 7);
+      const querySpy = spy(async (_) => 7);
       for (const [key, value] of Object.entries(inputs)) {
         context.Set(key, value);
       }
-      const result = template(input, context, querySpy);
+      const result = await template(input, context, querySpy);
       for (let i = 0; i < expectedQueryCallArgs.length; i++) {
-        assertEquals(querySpy.calls[i].args, expectedQueryCallArgs[i]);
+        assertEquals(querySpy.calls[i].args[0], expectedQueryCallArgs[i]);
       }
-      assertSpyCalls(querySpy, expectedQueryCallArgs.length);
+      const rest = querySpy.calls
+        .slice(expectedQueryCallArgs.length)
+        .map((a) => a.args[0]);
+      assertEquals(rest, [], `Query spy called more than expected`);
       assertEquals(result, expected);
     });
   }

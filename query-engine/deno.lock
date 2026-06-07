@@ -12,6 +12,8 @@
     "jsr:@std/path@^1.1.5": "1.1.5",
     "jsr:@std/testing@*": "1.0.19",
     "jsr:@std/testing@^1.0.19": "1.0.19",
+    "npm:acorn-walk@^8.3.5": "8.3.5",
+    "npm:acorn@^8.16.0": "8.16.0",
     "npm:node-html-parser@^7.1.0": "7.1.0"
   },
   "jsr": {
@@ -55,6 +57,16 @@
     }
   },
   "npm": {
+    "acorn-walk@8.3.5": {
+      "integrity": "sha512-HEHNfbars9v4pgpW6SO1KSPkfoS0xVOM/9UzkJltjlsHZmJasxg8aXkuZa7SMf8vKGIBhpUsPluQSqhJFCqebw==",
+      "dependencies": [
+        "acorn"
+      ]
+    },
+    "acorn@8.16.0": {
+      "integrity": "sha512-UVJyE9MttOsBQIDKw1skb9nAwQuR5wuGD3+82K6JgJlm/Y+KI92oNsMNGZCYdDsVtRHSak0pcV5Dno5+4jh9sw==",
+      "bin": true
+    },
     "boolbase@1.0.0": {
       "integrity": "sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww=="
     },
@@ -121,6 +133,8 @@
     "dependencies": [
       "jsr:@std/assert@1",
       "jsr:@std/testing@^1.0.19",
+      "npm:acorn-walk@^8.3.5",
+      "npm:acorn@^8.16.0",
       "npm:node-html-parser@^7.1.0"
     ]
   }
