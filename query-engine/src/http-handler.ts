@@ -27,7 +27,7 @@ export function createHandler(
         headers: { "content-type": "text/html" },
       });
     }
-    const inputs = new Inputs();
+    const inputs = Inputs.From(formData);
     if (formData.has("query")) {
       return new Response(
         (await query(formData.get("query")!.toString(), inputs)) + "",

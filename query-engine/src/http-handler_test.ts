@@ -105,3 +105,27 @@ Deno.test(
     assertSpyCalls(querySpy, 1);
   },
 );
+
+Deno.test("Responds with simple query result for urlencoded", async () => {
+  const body = new URLSearchParams();
+  body.set("query", "input1 * 2");
+  body.set("input1", "62");
+  const req = new Request("http://localhost/", {
+    method: "POST",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded",
+    },
+    body,
+  });
+  const querySpy = createQuerySpy();
+  const handler = createHandler(
+    () => Promise.reject("Query handler template response"),
+    querySpy,
+  );
+  const res = await handler(req);
+  assertEquals(res.headers.get("content-type"), "text/html");
+  assertEquals(res.status, 200);
+  const responseBody = await res.text();
+  assertEquals(responseBody, "124");
+  assertSpyCalls(querySpy, 1);
+});

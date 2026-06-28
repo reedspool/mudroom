@@ -3,10 +3,7 @@ import * as acorn from "acorn";
 import * as walk from "acorn-walk";
 import { disallowedParameterNames } from "./utilities.ts";
 
-export type QueryInterface = (
-  expression: string,
-  inputs: InputsInterface,
-) => Promise<unknown>;
+export type QueryInterface = typeof query;
 
 // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncFunction/AsyncFunction
 // AsyncFunction isn't a global constructor but it works just like Function
@@ -18,9 +15,9 @@ const AsyncFunction = async function () {}.constructor;
 //       instead of throwing an exception, so that callers can handle issues
 //       in one way
 // deno-lint-ignore require-await
-export const query: QueryInterface = async (
-  expression,
-  inputs,
+export const query = async (
+  expression: string,
+  inputs: InputsInterface,
 ): Promise<unknown> => {
   inputs = setAllMissingIdentifiersToUndefined(expression, inputs);
   // Fancyness for dynamic named parameters

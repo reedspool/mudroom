@@ -29,6 +29,21 @@ Deno.test("Inputs from object", () => {
   assertEquals(unknown, undefined);
 });
 
+Deno.test("Inputs from FormData", () => {
+  const formData = new FormData();
+  formData.set("mnop", "arbitrary");
+  const inputs = Inputs.From(formData);
+  const found = inputs.Has("mnop");
+  assertEquals(found, true);
+  const value = inputs.Get("mnop");
+  assertEquals(value, "arbitrary");
+
+  const foundUnknown = inputs.Has("unknown");
+  assertEquals(foundUnknown, false);
+  const unknown = inputs.Get("unknown");
+  assertEquals(unknown, undefined);
+});
+
 Deno.test("Inputs ForEach", () => {
   const original = { ijkl: true };
   const inputs = Inputs.From(original);

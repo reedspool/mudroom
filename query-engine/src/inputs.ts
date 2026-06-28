@@ -18,9 +18,11 @@ export class Inputs {
   Clone() {
     return Inputs.From(this.stuff);
   }
-  static From(obj: Record<string, unknown>) {
+  static From(obj: Record<string, unknown> | FormData) {
     const inputs = new Inputs();
-    Object.entries(obj).forEach(([key, value]) => inputs.Set(key, value));
+    const entries =
+      obj instanceof FormData ? obj.entries() : Object.entries(obj);
+    entries.forEach(([key, value]) => inputs.Set(key, value));
     return inputs;
   }
 }
