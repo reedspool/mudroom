@@ -1,29 +1,7 @@
 import { parse, HTMLElement, Node, NodeType } from "node-html-parser";
 import { TreeWalker, NodeFilter } from "./tree-walker.ts";
 import { QueryInterface } from "./query.ts";
-export interface InputsInterface {
-  Has(key: string): boolean;
-  Get(key: string): unknown;
-  Set(key: string, value: unknown): void;
-  ForEach(fn: (entry: [string, unknown]) => void): void;
-}
-
-export class Inputs {
-  private stuff: Record<string, unknown> = {};
-  constructor() {}
-  Has(key: string): boolean {
-    return key in this.stuff;
-  }
-  Get(key: string): unknown {
-    return this.stuff[key];
-  }
-  Set(key: string, value: unknown): void {
-    this.stuff[key] = value;
-  }
-  ForEach(fn: (entry: [string, unknown]) => void) {
-    Object.entries(this.stuff).forEach(fn);
-  }
-}
+import { InputsInterface } from "./inputs.ts";
 
 function assertIsHTMLElement(a: Node): asserts a is HTMLElement {
   if (a.nodeType !== NodeType.ELEMENT_NODE) {

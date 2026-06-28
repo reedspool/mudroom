@@ -1,6 +1,7 @@
 import { assertEquals } from "jsr:@std/assert";
-import { template, Inputs } from "./template.ts";
+import { template } from "./template.ts";
 import { query } from "./query.ts";
+import { Inputs } from "./inputs.ts";
 
 Deno.test("querying", async (t) => {
   const a: Array<{

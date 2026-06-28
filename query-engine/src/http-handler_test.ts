@@ -1,6 +1,6 @@
-import { assertEquals } from "@std/assert";
+import { assert, assertEquals } from "@std/assert";
 import { createHandler } from "./http-handler.ts";
-import { assertSpyCalls } from "@std/testing/mock";
+import { assertSpyCalls, stub } from "@std/testing/mock";
 import { createQuerySpy } from "./test-utilities.ts";
 
 const emptyHandler = createHandler(
@@ -18,7 +18,15 @@ Deno.test("Responds with unknown request for basic GET", async () => {
 
 Deno.test("Errs if bad form data", async () => {
   const req = new Request("http://localhost/", { method: "POST" });
+  using consoleErrorSpy = stub(console, "error");
   const res = await emptyHandler(req);
+  assertSpyCalls(consoleErrorSpy, 1);
+  assertEquals(consoleErrorSpy.calls[0].args[0], "Could not parse form data:");
+  assert(
+    consoleErrorSpy.calls[0].args[1]
+      .toString()
+      .startsWith("TypeError: Missing content type"),
+  );
   assertEquals(res.headers.get("content-type"), "text/html");
   assertEquals(res.status, 400);
   const responseBody = await res.text();
