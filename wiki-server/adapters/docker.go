@@ -2,6 +2,7 @@ package adapters
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	// "github.com/moby/moby/api/types/build"
@@ -15,7 +16,7 @@ func StartDockerServer(
 	t testing.TB,
 	port string,
 	dockerFilePath string,
-) (mappedPort uint16) {
+) (mappedPortNum uint16) {
 	ctx := context.Background()
 
 	req := testcontainers.ContainerRequest{
@@ -36,9 +37,8 @@ func StartDockerServer(
 			// 	buildOptions.Version = build.BuilderBuildKit
 			// },
 		},
-		// TODO: Use passed port
-		ExposedPorts: []string{"8080/tcp"},
-		WaitingFor:   wait.ForHTTP("/").WithStatusCodeMatcher(func(status int) bool { return true }).WithPort("8080"),
+		ExposedPorts: []string{fmt.Sprintf("%s/tcp", port)},
+		WaitingFor:   wait.ForHTTP("/").WithStatusCodeMatcher(func(status int) bool { return true }).WithPort(port),
 	}
 	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: req,
@@ -49,7 +49,7 @@ func StartDockerServer(
 		assert.NoError(t, container.Terminate(ctx))
 	})
 
-	mapped8080, err := container.MappedPort(ctx, "8080/tcp")
+	mappedPort, err := container.MappedPort(ctx, fmt.Sprintf("%s/tcp", port))
 	assert.NoError(t, err)
-	return mapped8080.Num()
+	return mappedPort.Num()
 }

@@ -15,7 +15,7 @@ COPY . .
 # Wanted RUN --mount=type=cache,target=/root/.cache/go-build
 # To speed up cache but this requires a new BuildKit thing for which the API
 # does not seem ready
-RUN go build -o svr cmd/httpserver/*.go
+RUN go build -o server cmd/httpserver/*.go
 
 EXPOSE 8080
-CMD [ "./svr" ]
+CMD [ "./server" ]

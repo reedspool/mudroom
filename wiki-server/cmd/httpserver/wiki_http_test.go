@@ -11,11 +11,10 @@ import (
 )
 
 func TestGetterServer(t *testing.T) {
-	// TODO: not using passed port in given func yet
-	mapped8080 := adapters.StartDockerServer(t, "8080", "./cmd/httpserver/Dockerfile")
+	mappedPortNum := adapters.StartDockerServer(t, "6767", "./cmd/httpserver/Dockerfile")
 	client := http.Client{
 		Timeout: 1 * time.Second,
 	}
-	driver := Driver{BaseURL: fmt.Sprintf("http://localhost:%d", mapped8080), Client: &client}
+	driver := Driver{BaseURL: fmt.Sprintf("http://localhost:%d", mappedPortNum), Client: &client}
 	specs.GetLiteralPagesSpecification(t, driver)
 }
