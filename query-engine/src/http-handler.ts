@@ -1,4 +1,5 @@
-import { Inputs } from "./inputs.ts";
+import { AccessorInterface } from "./accessor.ts";
+import { Inputs, InputsInterface } from "./inputs.ts";
 import { QueryInterface } from "./query.ts";
 import { TemplateInterface } from "./template.ts";
 
@@ -6,9 +7,10 @@ export type HandlerInterface = (req: Request) => Promise<Response>;
 export function createHandler(
   template: TemplateInterface,
   query: QueryInterface,
+  accessor: AccessorInterface,
 ): HandlerInterface {
   return async (req: Request) => {
-    const url = new URL(req.url);
+    const _url = new URL(req.url);
 
     if (req.method !== "POST") {
       return new Response("Method not allowed", {
@@ -16,10 +18,10 @@ export function createHandler(
         headers: { "content-type": "text/html" },
       });
     }
-
-    let formData;
+    let inputs: InputsInterface;
     try {
-      formData = await req.formData();
+      const formData = await req.formData();
+      inputs = Inputs.From(formData);
     } catch (error) {
       console.error("Could not parse form data:", error);
       return new Response("Bad request", {
@@ -27,14 +29,28 @@ export function createHandler(
         headers: { "content-type": "text/html" },
       });
     }
-    const inputs = Inputs.From(formData);
-    if (formData.has("query")) {
+
+    if (inputs.Has("query")) {
       return new Response(
-        (await query(formData.get("query")!.toString(), inputs)) + "",
+        // TODO: Both the `.toString` and the `+ ""`
+        //       are coercing to strings. I have full control over the source,
+        //       though, so this is a design smell. Probably need to formalize
+        //       when things are JS values and when they are strings. Maybe once
+        //       it gets to the deno server, every Input should be interpreted
+        //       as a JS value?
+        (await query(inputs.Get("query")!.toString(), inputs)) + "",
         {
           headers: { "content-type": "text/html" },
         },
       );
+    }
+    if (inputs.Has("file")) {
+      const fileContents = await accessor.GetText(inputs.GetText("file"));
+      const evaluated = await template(fileContents, inputs, query);
+      // TODO: See note above on coercion to string
+      return new Response(evaluated + "", {
+        headers: { "content-type": "text/html" },
+      });
     }
     return new Response("", {
       headers: { "content-type": "text/html" },

@@ -5,6 +5,7 @@ import { Inputs } from "./inputs.ts";
 
 Deno.test("templating", async (t) => {
   const a: Array<{
+    SKIP?: boolean;
     name: string;
     input: string;
     expected: string;
@@ -75,8 +76,33 @@ Deno.test("templating", async (t) => {
       inputs: {},
       expectedQueryCallArgs: ["5+2"],
     },
+    {
+      SKIP: true,
+      name: "<r- map=...>",
+      input: `<ul> <r- map="['first', 'second', 'third']" item="count"> <li><r- content="count" /> item</li> </r-> </ul>`,
+      expected:
+        "<ul> <li>first item</li> <li>second item</li> <li>third item</li> </ul>",
+      inputs: {},
+      expectedQueryCallArgs: [
+        "['first', 'second', 'third']",
+        "item",
+        "item",
+        "item",
+      ],
+    },
   ];
-  for (const { name, input, expected, inputs, expectedQueryCallArgs } of a) {
+  for (const {
+    SKIP,
+    name,
+    input,
+    expected,
+    inputs,
+    expectedQueryCallArgs,
+  } of a) {
+    if (SKIP) {
+      console.warn(`SKIPPED Test '${name}' because \`SKIP: true\``);
+      continue;
+    }
     await t.step(name, async () => {
       const context = new Inputs();
 

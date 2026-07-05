@@ -9,6 +9,10 @@ export class Inputs {
   Get(key: string): unknown {
     return this.stuff[key];
   }
+  GetText(key: string): string {
+    const value = this.Get(key);
+    return value + "";
+  }
   Set(key: string, value: unknown): void {
     this.stuff[key] = value;
   }

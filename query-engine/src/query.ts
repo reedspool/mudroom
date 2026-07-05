@@ -32,7 +32,17 @@ export const query = async (
   // args.push(`debugger;return ${expression};`)
   // Finally, the function body
   args.push(`return ${expression};`);
-  const fn = AsyncFunction(...args);
+  let fn;
+  try {
+    fn = AsyncFunction(...args);
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      throw new Error(
+        `Caught query syntax error '${error.message}' from expression '${expression}'`,
+      );
+    }
+    throw error;
+  }
 
   Object.defineProperty(fn, "name", {
     value: "query engine anonymous function",

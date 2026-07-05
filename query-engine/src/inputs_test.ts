@@ -14,6 +14,19 @@ Deno.test("Inputs set and get", () => {
   assertEquals(value, "yes");
 });
 
+Deno.test("Inputs GetText", () => {
+  const inputs = new Inputs();
+  inputs.Set("abcd", "yes");
+  inputs.Set("num", 50);
+  function testFunc() {}
+  inputs.Set("func", testFunc);
+  assertEquals(inputs.GetText("abcd"), "yes");
+  assertEquals(inputs.Get("num"), 50);
+  assertEquals(inputs.GetText("num"), "50");
+  assertEquals(inputs.Get("func"), testFunc);
+  assertEquals(inputs.GetText("func"), "function testFunc() {}");
+});
+
 Deno.test("Inputs from object", () => {
   const inputs = Inputs.From({
     efgh: true,
