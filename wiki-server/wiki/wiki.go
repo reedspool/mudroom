@@ -35,12 +35,14 @@ func (s wiki) handleRequest(w io.Writer, method string, path string, inputs Inpu
 
 	if method == "GET" {
 		fileContents, err := s.getFileContents(path, inputs)
-
 		if err != nil {
 			fmt.Println("Error on getFileContents:", err)
 			return notFoundText, http.StatusNotFound
 		}
-		if _, err := w.Write(fileContents); err != nil {
+
+		renderedContent, err := passThroughTemplater(fileContents)
+
+		if _, err := w.Write(renderedContent); err != nil {
 			panic(err)
 		}
 		return emptyResponse, http.StatusOK
@@ -55,4 +57,19 @@ func (s wiki) getFileContents(path string, inputs Inputs) (contents fileContents
 	} else {
 		return s.config.GetFile(path)
 	}
+}
+
+// TODO: Pass in some configuration for how to contact the templating service.
+func passThroughTemplater(content string) (result string, err error) {
+	resp, err := http.PostForm("http://localhost/", url.Values{"content": {content}})
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
 }

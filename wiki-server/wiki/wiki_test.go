@@ -68,3 +68,31 @@ func Test_wiki_user1_literal(t *testing.T) {
 		})
 	}
 }
+
+func Test_wiki_simple_templating(t *testing.T) {
+	router := Wiki(user1NoAuthConfig())
+
+	user1TemplatedResult := mustReadFile(t, "user1/second/templated_result.html")
+
+	var cases = []struct {
+		name, url string
+		expected  string
+		status    int
+	}{
+		{name: "<r- content> test", url: "/templated.html", status: http.StatusOK, expected: user1TemplatedResult},
+	}
+
+	// TODO: Pull this into a method.
+	for index, test := range cases {
+		t.Run(fmt.Sprintf("%q (case #%d)", test.name, index+1), func(t *testing.T) {
+			req, _ := http.NewRequest(http.MethodGet, test.url, nil)
+			w := testRequest(t, router, req)
+
+			assert.Equal(t, test.status, w.Code)
+			assert.Equal(t, test.expected, w.Body.String())
+			// In the case of literal files, this is redundant with the above, but
+			// when we add templating this will be more useful as no original file exists.
+			autogold.ExpectFile(t, w.Body.String())
+		})
+	}
+}
