@@ -12,6 +12,7 @@
     "jsr:@std/path@^1.1.5": "1.1.5",
     "jsr:@std/testing@*": "1.0.19",
     "jsr:@std/testing@^1.0.19": "1.0.19",
+    "npm:@types/node@*": "24.2.0",
     "npm:acorn-walk@^8.3.5": "8.3.5",
     "npm:acorn@^8.16.0": "8.16.0",
     "npm:node-html-parser@^7.1.0": "7.1.0"
@@ -57,6 +58,12 @@
     }
   },
   "npm": {
+    "@types/node@24.2.0": {
+      "integrity": "sha512-3xyG3pMCq3oYCNg7/ZP+E1ooTaGB4cG8JWRsqqOYQdbWNY4zbaV0Ennrd7stjiJEFZCaybcIgpTjJWHRfBSIDw==",
+      "dependencies": [
+        "undici-types"
+      ]
+    },
     "acorn-walk@8.3.5": {
       "integrity": "sha512-HEHNfbars9v4pgpW6SO1KSPkfoS0xVOM/9UzkJltjlsHZmJasxg8aXkuZa7SMf8vKGIBhpUsPluQSqhJFCqebw==",
       "dependencies": [
@@ -127,6 +134,9 @@
       "dependencies": [
         "boolbase"
       ]
+    },
+    "undici-types@7.10.0": {
+      "integrity": "sha512-t5Fy/nfn+14LuOc2KNYg75vZqClpAiqscVvMygNnlsHBFpSXdJaYtXMcdNLpl/Qvc3P2cB3s6lOV51nqsFq4ag=="
     }
   },
   "workspace": {

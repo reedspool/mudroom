@@ -52,6 +52,15 @@ export function createHandler(
         headers: { "content-type": "text/html" },
       });
     }
+    if (inputs.Has("content")) {
+      const fileContents = inputs.GetText("content");
+      const evaluated = await template(fileContents, inputs, query);
+      // TODO: See note above on coercion to string
+      return new Response(evaluated + "", {
+        headers: { "content-type": "text/html" },
+      });
+    }
+
     return new Response("", {
       headers: { "content-type": "text/html" },
     });

@@ -166,3 +166,38 @@ Deno.test("Responds with evaluated file", async () => {
   assertSpyCalls(querySpy, 1);
   assertSpyCalls(accessorMock.GetText as ReturnType<typeof spy>, 1);
 });
+
+Deno.test(
+  "Accepts content in post and responds with evaluated file",
+  async () => {
+    const body = new URLSearchParams();
+    const content = `<code>45*52 = <r- content="45*52">NOT EVALUATED</r-></code>`;
+    const expected = `<code>45*52 = 2340</code>`;
+
+    body.set("content", content);
+
+    const req = new Request("http://localhost/", {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+      },
+      body,
+    });
+
+    const template = createTemplateSpy();
+    const querySpy = createQuerySpy();
+    const accessorMock = createAccessorMock();
+    const handler = createTestHandler({
+      template: template,
+      query: querySpy,
+      accessor: accessorMock,
+    });
+    const res = await handler(req);
+
+    assertEquals(res.headers.get("content-type"), "text/html");
+    assertEquals(res.status, 200);
+    const responseBody = await res.text();
+
+    assertEquals(responseBody, expected);
+  },
+);

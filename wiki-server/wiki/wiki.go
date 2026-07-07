@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 )
 
 type wiki struct {
@@ -40,7 +41,11 @@ func (s wiki) handleRequest(w io.Writer, method string, path string, inputs Inpu
 			return notFoundText, http.StatusNotFound
 		}
 
-		renderedContent, err := passThroughTemplater(fileContents)
+		renderedContent, err := passThroughTemplater(string(fileContents))
+
+		if err != nil {
+			panic(err)
+		}
 
 		if _, err := w.Write(renderedContent); err != nil {
 			panic(err)
@@ -60,8 +65,8 @@ func (s wiki) getFileContents(path string, inputs Inputs) (contents fileContents
 }
 
 // TODO: Pass in some configuration for how to contact the templating service.
-func passThroughTemplater(content string) (result string, err error) {
-	resp, err := http.PostForm("http://localhost/", url.Values{"content": {content}})
+func passThroughTemplater(content string) (result []byte, err error) {
+	resp, err := http.PostForm("http://localhost:8000/", url.Values{"content": {content}})
 	if err != nil {
 		return nil, err
 	}
