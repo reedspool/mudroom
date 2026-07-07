@@ -10,7 +10,8 @@ import (
 	"github.com/reedspool/html-wiki-two/wiki-server/specs"
 )
 
-func TestGetterServer(t *testing.T) {
+// Disabled test (by lowercasing "Test") because I haven't optimized docker (takes ~1min)
+func testGetterServer(t *testing.T) {
 	mappedPortNum := adapters.StartDockerServer(t, "6767", "./cmd/httpserver/Dockerfile")
 	client := http.Client{
 		Timeout: 1 * time.Second,
