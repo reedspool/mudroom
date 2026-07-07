@@ -41,7 +41,7 @@ func (s wiki) handleRequest(w io.Writer, method string, path string, inputs Inpu
 			return notFoundText, http.StatusNotFound
 		}
 
-		renderedContent, err := passThroughTemplater(string(fileContents))
+		renderedContent, err := passThroughTemplater(string(fileContents), inputs)
 
 		if err != nil {
 			panic(err)
@@ -65,8 +65,17 @@ func (s wiki) getFileContents(path string, inputs Inputs) (contents fileContents
 }
 
 // TODO: Pass in some configuration for how to contact the templating service.
-func passThroughTemplater(content string) (result []byte, err error) {
-	resp, err := http.PostForm("http://localhost:8000/", url.Values{"content": {content}})
+func passThroughTemplater(content string, inputs Inputs) (result []byte, err error) {
+
+	data := url.Values{}
+
+	for k, v := range inputs {
+		data.Add(k, v)
+	}
+
+	data.Add("content", content)
+
+	resp, err := http.PostForm("http://localhost:8000/", data)
 	if err != nil {
 		return nil, err
 	}

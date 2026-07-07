@@ -39,20 +39,15 @@ func Test_wiki_emptyConfig(t *testing.T) {
 func Test_wiki_user1_literal(t *testing.T) {
 	router := Wiki(user1NoAuthConfig())
 
-	user1BaseIndexHtml := mustReadFile(t, "user1/base/index.html")
-	user1BaseUnshadowedHtml := mustReadFile(t, "user1/base/unshadowed.html")
-	user1SecondIndexHtml := mustReadFile(t, "user1/second/index.html")
-
 	var cases = []struct {
 		name, url string
-		expected  string
 		status    int
 	}{
-		{name: "literal shadowed html", url: "/index.html", status: http.StatusOK, expected: user1SecondIndexHtml},
-		{name: "literal shadowed html by specifier", url: "/index.html?layer=user1/base", status: http.StatusOK, expected: user1BaseIndexHtml},
-		{name: "literal shadowed html with no leading slash", url: "index.html", status: http.StatusOK, expected: user1SecondIndexHtml},
-		{name: "literal unshadowed html", url: "unshadowed.html", status: http.StatusOK, expected: user1BaseUnshadowedHtml},
-		{name: "literal unshadowed html by specifier is empty", url: "unshadowed.html?layer=user1/second", status: http.StatusNotFound, expected: "404 Not found"},
+		{name: "literal shadowed html", url: "/index.html", status: http.StatusOK},
+		{name: "literal shadowed html by specifier", url: "/index.html?layer=user1/base", status: http.StatusOK},
+		{name: "literal shadowed html with no leading slash", url: "index.html", status: http.StatusOK},
+		{name: "literal unshadowed html", url: "unshadowed.html", status: http.StatusOK},
+		{name: "literal unshadowed html by specifier is empty", url: "unshadowed.html?layer=user1/second", status: http.StatusNotFound},
 	}
 
 	for index, test := range cases {
@@ -61,9 +56,6 @@ func Test_wiki_user1_literal(t *testing.T) {
 			w := testRequest(t, router, req)
 
 			assert.Equal(t, test.status, w.Code)
-			assert.Equal(t, test.expected, w.Body.String())
-			// In the case of literal files, this is redundant with the above, but
-			// when we add templating this will be more useful as no original file exists.
 			autogold.ExpectFile(t, w.Body.String())
 		})
 	}
@@ -72,14 +64,12 @@ func Test_wiki_user1_literal(t *testing.T) {
 func Test_wiki_simple_templating(t *testing.T) {
 	router := Wiki(user1NoAuthConfig())
 
-	user1TemplatedResult := mustReadFile(t, "user1/second/templated_result.html")
-
 	var cases = []struct {
 		name, url string
-		expected  string
 		status    int
 	}{
-		{name: "<r- content> test", url: "/templated.html", status: http.StatusOK, expected: user1TemplatedResult},
+		{name: "<r- content> test", url: "/templated.html", status: http.StatusOK},
+		{name: "parameterized test", url: "/parameterized.html?foo=42&bar=9", status: http.StatusOK},
 	}
 
 	// TODO: Pull this into a method.
@@ -89,9 +79,6 @@ func Test_wiki_simple_templating(t *testing.T) {
 			w := testRequest(t, router, req)
 
 			assert.Equal(t, test.status, w.Code)
-			assert.Equal(t, test.expected, w.Body.String())
-			// In the case of literal files, this is redundant with the above, but
-			// when we add templating this will be more useful as no original file exists.
 			autogold.ExpectFile(t, w.Body.String())
 		})
 	}
