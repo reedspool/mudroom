@@ -55,6 +55,7 @@ func Test_wiki_user1_literal(t *testing.T) {
 			req, _ := http.NewRequest(http.MethodGet, test.url, nil)
 			w := testRequest(t, router, req)
 
+			assert.Equal(t, w.Result().Header.Get("Content-Type"), "text/html; charset=utf-8")
 			assert.Equal(t, test.status, w.Code)
 			autogold.ExpectFile(t, w.Body.String())
 		})
@@ -78,6 +79,7 @@ func Test_wiki_simple_templating(t *testing.T) {
 			req, _ := http.NewRequest(http.MethodGet, test.url, nil)
 			w := testRequest(t, router, req)
 
+			assert.Equal(t, w.Result().Header.Get("Content-Type"), "text/html; charset=utf-8")
 			assert.Equal(t, test.status, w.Code)
 			autogold.ExpectFile(t, w.Body.String())
 		})

@@ -1,0 +1,13 @@
+<form action='#' method='GET'>
+  <label>
+    foo
+    <input name='foo' type='number'>
+  </label>
+  <label>
+    bar
+    <input name='bar' type='number'>
+  </label>
+  <button type='submit'>Multiply</button>
+</form>
+
+<output>foo * bar = <r- content="foo && bar ? +foo * +bar : '???'">NOT EVALUATED</r-></output>

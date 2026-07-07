@@ -24,6 +24,7 @@ var badRequestText = []byte("Bad request")
 func (s wiki) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	inputs := NewInputs()
 	inputs.AddAllUrlQueryValues(r.URL.Query())
+	w.Header().Add("Content-Type", "text/html; charset=utf-8")
 	body, status := s.handleRequest(w, r.Method, r.URL.Path, inputs)
 	w.WriteHeader(status)
 	w.Write(body)
