@@ -37,6 +37,7 @@ func (s wiki) handleRequest(w io.Writer, method string, path string, inputs Inpu
 		fileContents, err := s.getFileContents(path, inputs)
 
 		if err != nil {
+			fmt.Println("Error on getFileContents:", err)
 			return notFoundText, http.StatusNotFound
 		}
 		if _, err := w.Write(fileContents); err != nil {

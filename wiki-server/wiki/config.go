@@ -9,7 +9,7 @@ import (
 )
 
 type Layer struct {
-	user, name, actualFilePathRoot string
+	User, Name, ActualFilePathRoot string
 }
 
 type Config interface {
@@ -21,8 +21,8 @@ type Config interface {
 type EmptyConfig struct{}
 
 type NoAuthConfig struct {
-	user   string
-	layers []Layer
+	User   string
+	Layers []Layer
 }
 
 // Empty config has no layers, no files
@@ -35,8 +35,8 @@ func (EmptyConfig) GetFileFrom(relativePath string, layerSpecifier string) (cont
 }
 
 func (c NoAuthConfig) Layer(name string) (lyr Layer, found bool) {
-	for _, lyr := range c.layers {
-		if lyr.name == name {
+	for _, lyr := range c.Layers {
+		if lyr.Name == name {
 			return lyr, true
 		}
 	}
@@ -49,7 +49,9 @@ func (c NoAuthConfig) readFile(path string) (contents fileContents, err error) {
 
 // Returns full path of file in first layer in which it exists, or not found err
 func (c NoAuthConfig) findFileInAnyLayer(path string) (fullPath string, err error) {
-	for _, lyr := range slices.Backward(c.layers) {
+	fmt.Println("Searching for path", path)
+	for _, lyr := range slices.Backward(c.Layers) {
+		fmt.Println("Searching for path", path, "in layer root", lyr.ActualFilePathRoot)
 		if fullPath, found := c.maybeFindFileInLayer(lyr, path); found {
 			return fullPath, nil
 		}
@@ -60,7 +62,7 @@ func (c NoAuthConfig) findFileInAnyLayer(path string) (fullPath string, err erro
 
 func (c NoAuthConfig) maybeFindFileInLayer(lyr Layer, path string) (fullPath string, found bool) {
 	relativeFilePath := strings.TrimPrefix(path, "/")
-	fullPath = filepath.Join(lyr.actualFilePathRoot, relativeFilePath)
+	fullPath = filepath.Join(lyr.ActualFilePathRoot, relativeFilePath)
 	if _, err := os.Stat(fullPath); err != nil {
 		if !os.IsNotExist(err) {
 			fmt.Printf("File read error wasn't `os.IsNotExist`: %+v", err)
@@ -74,8 +76,8 @@ func (c NoAuthConfig) getLayerBySpecifier(specifier string) (lyr Layer, err erro
 	split := strings.Split(specifier, "/")
 	user := split[0]
 	name := split[1]
-	for _, lyr := range slices.Backward(c.layers) {
-		if lyr.name == name && lyr.user == user {
+	for _, lyr := range slices.Backward(c.Layers) {
+		if lyr.Name == name && lyr.User == user {
 			return lyr, nil
 		}
 	}

@@ -40,13 +40,13 @@ func Test_user1(t *testing.T) {
 
 	t.Run("User1's config base .Layer found", func(t *testing.T) {
 		lyr, found := config.Layer("base")
-		autogold.Expect(Layer{user: "user1", name: "base", actualFilePathRoot: "testdata/fixtures/layers/user1/base"}).Equal(t, lyr)
+		autogold.Expect(Layer{User: "user1", Name: "base", ActualFilePathRoot: "testdata/fixtures/layers/user1/base"}).Equal(t, lyr)
 		assert.Equal(t, true, found)
 	})
 
 	t.Run("User1's config second .Layer found", func(t *testing.T) {
 		lyr, found := config.Layer("second")
-		autogold.Expect(Layer{user: "user1", name: "second", actualFilePathRoot: "testdata/fixtures/layers/user1/second"}).Equal(t, lyr)
+		autogold.Expect(Layer{User: "user1", Name: "second", ActualFilePathRoot: "testdata/fixtures/layers/user1/second"}).Equal(t, lyr)
 		assert.Equal(t, true, found)
 	})
 

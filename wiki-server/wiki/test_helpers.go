@@ -24,14 +24,14 @@ func mustReadFile(t testing.TB, filename string) string {
 func user1NoAuthConfig() Config {
 	user := "user1"
 	baseLayer := Layer{
-		user:               user,
-		name:               "base",
-		actualFilePathRoot: path.Join(fixtureFSRoot, user, "base"),
+		User:               user,
+		Name:               "base",
+		ActualFilePathRoot: path.Join(fixtureFSRoot, user, "base"),
 	}
 	secondLayer := Layer{
-		user:               user,
-		name:               "second",
-		actualFilePathRoot: path.Join(fixtureFSRoot, user, "second"),
+		User:               user,
+		Name:               "second",
+		ActualFilePathRoot: path.Join(fixtureFSRoot, user, "second"),
 	}
 	return NoAuthConfig{user, []Layer{baseLayer, secondLayer}}
 }
